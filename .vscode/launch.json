@@ -1,0 +1,14 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Email-Agent Debuggen",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/email_agent.py",
+            "console": "integratedTerminal",
+            "envFile": "${workspaceFolder}/.env",
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}
