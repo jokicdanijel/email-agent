@@ -4,6 +4,7 @@ Email Agent - Automated email handling with Gmail, Webshop, and ChatGPT integrat
 """
 
 import os
+import re
 import imaplib
 import smtplib
 import email
@@ -117,18 +118,31 @@ class EmailAgent:
                     logger.warning(f"Error closing IMAP connection: {e}")
     
     def send_email(self, to_address, subject, body, html=False):
-        """Send an email"""
+        """Send an email
+        
+        Args:
+            to_address: Recipient email address
+            subject: Email subject
+            body: Email body (can be plain text or HTML)
+            html: If True, sends both plain text and HTML versions
+        """
         server = None
         try:
-            msg = MIMEMultipart('alternative')
+            if html:
+                # For HTML emails, send both plain text and HTML for better compatibility
+                msg = MIMEMultipart('alternative')
+                # Create plain text version (strip HTML tags for simple conversion)
+                import re
+                plain_text = re.sub('<[^<]+?>', '', body)
+                msg.attach(MIMEText(plain_text, 'plain'))
+                msg.attach(MIMEText(body, 'html'))
+            else:
+                # For plain text emails, use simple MIMEText
+                msg = MIMEText(body, 'plain')
+            
             msg['From'] = self.email_user
             msg['To'] = to_address
             msg['Subject'] = subject
-            
-            if html:
-                msg.attach(MIMEText(body, 'html'))
-            else:
-                msg.attach(MIMEText(body, 'plain'))
             
             server = self.connect_smtp()
             server.send_message(msg)
