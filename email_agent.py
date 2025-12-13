@@ -5,6 +5,7 @@ Email Agent - Automated email handling with Gmail, Webshop, and ChatGPT integrat
 
 import os
 import re
+import sys
 import imaplib
 import smtplib
 import email
@@ -132,6 +133,7 @@ class EmailAgent:
                 # For HTML emails, send both plain text and HTML for better compatibility
                 msg = MIMEMultipart('alternative')
                 # Create plain text version (strip HTML tags for simple conversion)
+                # Note: For more robust HTML parsing, consider using BeautifulSoup
                 plain_text = re.sub('<[^>]*>', '', body)
                 msg.attach(MIMEText(plain_text, 'plain'))
                 msg.attach(MIMEText(body, 'html'))
@@ -194,4 +196,4 @@ def main():
 
 
 if __name__ == '__main__':
-    exit(main())
+    sys.exit(main())
