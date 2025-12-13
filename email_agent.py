@@ -10,7 +10,6 @@ import email
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import logging
-from datetime import datetime
 from email_config import (
     EMAIL_USER,
     EMAIL_PASS,
@@ -77,6 +76,7 @@ class EmailAgent:
     
     def fetch_unread_emails(self):
         """Fetch unread emails from inbox"""
+        mail = None
         try:
             mail = self.connect_imap()
             mail.select('inbox')
@@ -93,13 +93,17 @@ class EmailAgent:
                 msg = email.message_from_bytes(msg_data[0][1])
                 emails.append(msg)
             
-            mail.close()
-            mail.logout()
-            
             return emails
         except Exception as e:
             logger.error(f"Failed to fetch unread emails: {e}")
             raise
+        finally:
+            if mail:
+                try:
+                    mail.close()
+                    mail.logout()
+                except Exception as e:
+                    logger.warning(f"Error closing IMAP connection: {e}")
     
     def send_email(self, to_address, subject, body, html=False):
         """Send an email"""
