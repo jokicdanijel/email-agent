@@ -3,6 +3,7 @@
 Email Agent - Automated email handling with Gmail, Webshop, and ChatGPT integration
 """
 
+import os
 import imaplib
 import smtplib
 import email
@@ -18,6 +19,9 @@ from email_config import (
     SMTP_SERVER,
     SMTP_PORT
 )
+
+# Create logs directory if it doesn't exist
+os.makedirs('logs', exist_ok=True)
 
 # Configure logging
 logging.basicConfig(
@@ -145,11 +149,6 @@ class EmailAgent:
 
 def main():
     """Main entry point"""
-    import os
-    
-    # Create logs directory if it doesn't exist
-    os.makedirs('logs', exist_ok=True)
-    
     try:
         agent = EmailAgent()
         agent.run()
