@@ -83,13 +83,24 @@ class EmailAgent:
             
             # Search for unread emails
             status, messages = mail.search(None, 'UNSEEN')
-            email_ids = messages[0].split()
             
+            if status != 'OK':
+                logger.error(f"IMAP search failed with status: {status}")
+                return []
+            
+            if not messages[0]:
+                logger.info("No unread emails found")
+                return []
+            
+            email_ids = messages[0].split()
             logger.info(f"Found {len(email_ids)} unread emails")
             
             emails = []
             for email_id in email_ids:
                 status, msg_data = mail.fetch(email_id, '(RFC822)')
+                if status != 'OK' or not msg_data or not msg_data[0]:
+                    logger.warning(f"Failed to fetch email {email_id}, skipping")
+                    continue
                 msg = email.message_from_bytes(msg_data[0][1])
                 emails.append(msg)
             
@@ -107,6 +118,7 @@ class EmailAgent:
     
     def send_email(self, to_address, subject, body, html=False):
         """Send an email"""
+        server = None
         try:
             msg = MIMEMultipart('alternative')
             msg['From'] = self.email_user
@@ -120,12 +132,17 @@ class EmailAgent:
             
             server = self.connect_smtp()
             server.send_message(msg)
-            server.quit()
             
             logger.info(f"Successfully sent email to {to_address}")
         except Exception as e:
             logger.error(f"Failed to send email: {e}")
             raise
+        finally:
+            if server:
+                try:
+                    server.quit()
+                except Exception as e:
+                    logger.warning(f"Error closing SMTP connection: {e}")
     
     def run(self):
         """Main run loop for the email agent"""
