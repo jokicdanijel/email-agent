@@ -132,7 +132,7 @@ class EmailAgent:
                 # For HTML emails, send both plain text and HTML for better compatibility
                 msg = MIMEMultipart('alternative')
                 # Create plain text version (strip HTML tags for simple conversion)
-                plain_text = re.sub('<[^<]+?>', '', body)
+                plain_text = re.sub('<[^>]*>', '', body)
                 msg.attach(MIMEText(plain_text, 'plain'))
                 msg.attach(MIMEText(body, 'html'))
             else:
